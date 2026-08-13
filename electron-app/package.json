@@ -1,0 +1,48 @@
+{
+  "name": "video-monitor",
+  "version": "1.0.0",
+  "description": "MiniMax H3 视频生成监控台 (私有网关)",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "predist": "mkdir -p app && cp ../video-monitor.html app/index.html",
+    "dist": "electron-builder --mac --publish=never",
+    "dist:safe": "env -u CODEBUDDY_SAFE_DELETE_BULK_STATE_DIR -u CODEBUDDY_TOOL_CALL_ID npm run dist"
+  },
+  "build": {
+    "appId": "com.hank.videomonitor",
+    "productName": "视频生成监控台",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": "universal"
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "视频生成监控台 ${version}",
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1100">
+<title>视频生成监控台</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1f2430; --sub:#6b7280; --sub2:#9aa1ad; --line:#e9ebef; --line2:#f0f1f4;
+    --acc:#6366f1; --acc2:#8b5cf6; --acc-soft:#eef0ff;
+    --green:#15a34a; --green-soft:#e7f6ee; --red:#e11d48; --red-soft:#fdeaef;
+    --blue:#2563eb; --blue-soft:#e6effd; --orange:#ea580c; --orange-soft:#fdeede;
+    --amber:#d97706; --amber-soft:#fef3e2; --gray:#94a3b8; --gray-soft:#eef2f7;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px -12px rgba(16,24,40,.12);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:
+      radial-gradient(1200px 480px at 80% -10%, #eef0ff 0%, rgba(238,240,255,0) 60%),
+      var(--bg);
+    color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .page{max-width:1120px;margin:0 auto;padding:26px 28px 64px}
+  a{color:inherit}
+
+  /* header */
+  header{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .brand{font-size:20px;font-weight:750;letter-spacing:.2px;display:flex;align-items:center;gap:11px}
+  .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -6px rgba(99,102,241,.6)}
+  .brand .logo svg{width:17px;height:17px;fill:#fff}
+  .brand small{display:block;font-size:12px;font-weight:500;color:var(--sub2);letter-spacing:.4px;margin-top:1px}
+  .spacer{margin-left:auto}
+  .setbtn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--sub);cursor:pointer;transition:.18s}
+  .setbtn:hover{border-color:#cfd3dc;color:var(--ink);box-shadow:var(--shadow)}
+  .setbtn svg{width:15px;height:15px;fill:var(--sub)}
+
+  /* settings popover */
+  #settingsPanel{max-height:0;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .25s ease,margin .3s ease;margin-top:0}
+  #settingsPanel.on{max-height:320px;opacity:1;margin-top:14px}
+  .setcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+  .setcard .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+  .setcard label{display:block;font-size:11.5px;color:var(--sub);margin-bottom:6px;font-weight:650;letter-spacing:.3px;text-transform:uppercase}
+  .f{max-width:320px}
+  .setcard input,.setcard select{height:40px;width:100%;border:1px solid var(--line);border-radius:10px;padding:0 12px;font-size:14px;background:#fff;color:var(--ink);transition:.15s}
+  .setcard input:focus,.setcard select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft);outline:none}
+
+
+  /* layout */
+  .main{display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px}
+  @media(max-width:920px){.main{grid-template-columns:1fr}}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+  .ptitle{font-size:13px;font-weight:700;color:var(--sub);margin:0 0 16px;letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+  .ptitle::before{content:"";width:4px;height:14px;border-radius:3px;background:linear-gradient(180deg,var(--acc),var(--acc2))}
+
+  .tabs{display:flex;gap:4px;background:#f1f2f6;padding:4px;border-radius:11px;margin-bottom:18px}
+  .tabs button{flex:1;height:38px;border:0;background:transparent;border-radius:8px;font-weight:650;font-size:13.5px;color:var(--sub);cursor:pointer;transition:.18s}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{background:#fff;color:var(--acc);box-shadow:0 1px 3px rgba(16,24,40,.1)}
+
+  label.fld{display:block;font-size:12.5px;font-weight:650;color:var(--sub);margin:16px 0 6px}
+  label.fld:first-of-type{margin-top:0}
+  textarea,input[type=text],input[type=number],select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink);transition:.15s;outline:none}
+  textarea{min-height:80px;resize:vertical;line-height:1.5}
+  textarea:focus,input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+  .row2{display:flex;gap:12px}.row2>*{flex:1}
+  .hint{font-size:12px;color:var(--sub2);margin-top:7px;line-height:1.5}
+  .urlrow{display:flex;gap:8px;margin-top:8px;align-items:center}
+  .urlrow input{flex:1}
+  .xbtn{height:36px;width:36px;border:1px solid var(--line);background:#fff;border-radius:9px;color:var(--red);cursor:pointer;flex-shrink:0;font-size:14px;transition:.15s}
+  .xbtn:hover{background:var(--red-soft);border-color:#f3c2cf}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:42px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:14px;font-weight:650;cursor:pointer;transition:.16s}
+  .btn:hover{border-color:#cfd3dc;box-shadow:var(--shadow)}
+  .btn.primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent;box-shadow:0 8px 20px -8px rgba(99,102,241,.6)}
+  .btn.primary:hover{filter:brightness(1.05);box-shadow:0 10px 24px -8px rgba(99,102,241,.7)}
+  .btn.sm{height:33px;padding:0 12px;font-size:13px;border-radius:9px}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--sub)}
+  .btn.ghost:hover{background:#f4f5f7;color:var(--ink)}
+  .btn.danger{color:var(--red);border-color:#f3c2cf}
+  .btn.danger:hover{background:var(--red-soft)}
+
+  /* board */
+  .board-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .statline{font-size:13.5px;color:var(--sub)}
+  .statline b{color:var(--ink);font-weight:750}
+  .filters{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+  .filters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:650;color:var(--sub);cursor:pointer;transition:.15s}
+  .filters button:hover{border-color:#cfd3dc}
+  .filters button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+
+  .task{border:1px solid var(--line);border-left:3px solid var(--gray);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.03);transition:.18s;animation:fade .28s ease}
+  .task:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .task.s-queued{border-left-color:var(--gray)}
+  .task.s-running{border-left-color:var(--blue)}
+  .task.s-succeeded{border-left-color:var(--green)}
+  .task.s-failed{border-left-color:var(--red)}
+  .task.s-expired{border-left-color:var(--orange)}
+  .task.s-cancelled{border-left-color:var(--gray)}
+  .task.s-local{border-left-color:var(--amber)}
+  .task .th{display:flex;align-items:center;gap:10px}
+  .badge{font-size:12px;font-weight:700;padding:3px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+  .b-queued{background:var(--gray-soft);color:#64748b}.b-running{background:var(--blue-soft);color:var(--blue)}
+  .b-succeeded{background:var(--green-soft);color:var(--green)}.b-failed{background:var(--red-soft);color:var(--red)}
+  .b-expired{background:var(--orange-soft);color:var(--orange)}.b-cancelled{background:var(--gray-soft);color:#94a3b8}.b-local{background:var(--amber-soft);color:var(--amber)}
+  .mode-ic{width:26px;height:26px;border-radius:8px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center}
+  .mode-ic svg{width:15px;height:15px;fill:var(--acc)}
+  .task .prompt{margin:9px 0 0;font-size:14.5px;line-height:1.55;word-break:break-word;color:var(--ink)}
+  .task .meta{font-size:12px;color:var(--sub2);margin-top:8px;display:flex;flex-wrap:wrap;gap:7px}
+  .task .meta span{background:#f4f5f7;padding:2px 8px;border-radius:6px;color:var(--sub)}
+  .task video{width:100%;border-radius:10px;margin-top:11px;background:#000;max-height:320px;box-shadow:0 4px 14px -6px rgba(0,0,0,.3)}
+  .expire{font-size:12px;color:var(--orange);margin-top:7px;display:flex;align-items:center;gap:6px}
+  .task .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+  .localnote{font-size:12.5px;color:var(--amber);background:var(--amber-soft);padding:9px 11px;border-radius:9px;margin-top:9px;line-height:1.5}
+  .curlbox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:#0f172a;color:#cbd5e1;padding:10px;border-radius:9px;margin-top:9px;white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto;line-height:1.6}
+  .inrow{display:flex;gap:8px;margin-top:9px;align-items:center}
+  .inrow input{flex:1}
+  .servermsg{font-size:12.5px;color:var(--red);background:var(--red-soft);padding:9px 11px;border-radius:9px;margin-top:9px;line-height:1.5}
+  .empty{color:var(--sub);padding:34px 20px;text-align:center;border:1px dashed var(--line);border-radius:12px;background:#fafbfc}
+
+  .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(10px);background:#1f2430;color:#fff;padding:11px 18px;border-radius:11px;font-size:13.5px;z-index:60;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);display:flex;align-items:center;gap:9px;max-width:80vw}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .ic{width:18px;height:18px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="brand">
+      <span class="logo"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4V4zm2 2v8h12V6H6zm9 1.5l3 2.5-3 2.5v-5z"/></svg></span>
+      <span>视频生成监控台<small>MINIMAX H3 · 私有网关</small></span>
+    </div>
+    <span class="spacer"></span>
+    <button class="setbtn" id="btnSet">
+      <svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 000-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 00-1.7-1l-.4-2.6H10.9l-.4 2.6a7.6 7.6 0 00-1.7 1l-2.4-1-2 3.4L4.6 11a7.8 7.8 0 000 2l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 001.7 1l.4 2.6h3.4l.4-2.6a7.6 7.6 0 001.7-1l2.4 1 2-3.4-2-1.6zM12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"/></svg>
+      接入设置
+    </button>
+  </header>
+
+  <div id="settingsPanel">
+    <div class="setcard">
+      <div class="row">
+        <div class="f"><label>API Base URL</label><input type="text" id="sBase" placeholder="https://tokendance.space/gateway/minimax/v2"></div>
+        <div class="f"><label>API Key</label><input type="text" id="sKey" placeholder="Bearer 后的密钥"></div>
+        <div class="f" style="max-width:150px"><label>模型</label><input type="text" id="sModel" placeholder="minimax-h3"></div>
+        <div style="max-width:120px"><label>轮询(秒)</label><input type="number" id="sPoll" value="15" min="5" max="120"></div>
+        <div style="display:flex;align-items:center;gap:7px;padding-bottom:9px"><input type="checkbox" id="sDirect" checked><label style="margin:0;cursor:pointer">浏览器直连</label></div>
+        <button class="btn primary sm" id="sSave" style="margin-bottom:9px">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- 新建任务 -->
+    <div class="panel">
+      <div class="ptitle">新建任务</div>
+      <div class="tabs" id="modeTabs">
+        <button data-mode="text" class="on">文生视频</button>
+        <button data-mode="image">图生视频</button>
+        <button data-mode="multimodal">多模态</button>
+      </div>
+      <label class="fld">提示词</label>
+      <textarea id="fPrompt" placeholder="女人坐在咖啡馆里抬头看向窗外，镜头推进拍到街道，暖色调"></textarea>
+
+      <div id="grpText">
+        <div class="row2">
+          <div><label class="fld">宽高比</label><select id="fRatio"><option>16:9</option><option>9:16</option><option>1:1</option><option>21:9</option><option>4:3</option><option>3:4</option></select></div>
+          <div><label class="fld">时长(秒)</label><input type="number" id="fDuration" value="6" min="4" max="15"></div>
+        </div>
+        <label class="fld">分辨率</label><select id="fRes"><option>2K</option><option>768P</option></select>
+      </div>
+
+      <div id="grpImage" style="display:none">
+        <label class="fld">首帧图片 URL（必填）</label><input type="text" id="fFirst" placeholder="https://example.com/start.jpg">
+        <label class="fld">尾帧图片 URL（可选）</label><input type="text" id="fLast" placeholder="https://example.com/end.jpg">
+        <div class="row2" style="margin-top:14px">
+          <div><label class="fld">时长(秒)</label><input type="number" id="fDurationI" value="6" min="4" max="15"></div>
+          <div><label class="fld">分辨率</label><select id="fResI"><option>2K</option><option>768P</option></select></div>
+        </div>
+      </div>
+
+      <div id="grpMulti" style="display:none">
+        <label class="fld">参考图 URL</label>
+        <div id="multiImgs"></div>
+        <button class="btn sm ghost" id="addImg" type="button">+ 添加参考图</button>
+        <label class="fld">参考视频 URL</label><input type="text" id="fRefVideo" placeholder="https://example.com/move.mp4">
+        <label class="fld">参考音频 URL</label><input type="text" id="fRefAudio" placeholder="https://example.com/bgm.mp3">
+        <div class="hint">参考图 / 视频 / 音频任意组合，至少需一个参考视频或图片。</div>
+        <div class="row2" style="margin-top:14px">
+          <div><label class="fld">时长(秒)</label><input type="number" id="fDurationM" value="8" min="4" max="15"></div>
+          <div><label class="fld">分辨率</label><select id="fResM"><option>2K</option><option>768P</option></select></div>
+        </div>
+      </div>
+
+      <button class="btn primary" id="btnSubmit" style="width:100%;margin-top:20px">提交生成任务</button>
+      <div class="hint" style="margin-top:9px">提交后自动轮询状态；视频链接有效期 24 小时。</div>
+    </div>
+
+    <!-- 任务看板 -->
+    <div>
+      <div class="board-head">
+        <div class="statline" id="statline"></div>
+        <div class="filters" id="filters">
+          <button data-f="all" class="on">全部</button>
+          <button data-f="queued">排队</button>
+          <button data-f="running">生成中</button>
+          <button data-f="succeeded">成功</button>
+          <button data-f="failed">失败</button>
+        </div>
+      </div>
+      <div id="boardList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const PREFIX="wb_videomon_";
+const K_TASKS=PREFIX+"tasks",K_SET=PREFIX+"settings",K_META=PREFIX+"meta";
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function fmt(t){if(!t)return"";const d=new Date(t),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+function ago(t){if(!t)return"";const s=(Date.now()-new Date(t))/1000;if(s<60)return"刚刚";if(s<3600)return Math.floor(s/60)+"分钟前";if(s<86400)return Math.floor(s/3600)+"小时前";return Math.floor(s/86400)+"天前";}
+
+function loadTasks(){try{return JSON.parse(localStorage.getItem(K_TASKS))||[]}catch(e){return[]}}
+function saveTasks(t){localStorage.setItem(K_TASKS,JSON.stringify(t));}
+function loadSettings(){const d={baseUrl:"https://tokendance.space/gateway/minimax/v2",apiKey:"",model:"minimax-h3",pollInterval:15,direct:true};try{return Object.assign(d,JSON.parse(localStorage.getItem(K_SET))||{})}catch(e){return d}}
+function saveSettings(s){localStorage.setItem(K_SET,JSON.stringify(s));}
+function loadMeta(){try{return JSON.parse(localStorage.getItem(K_META))||{}}catch(e){return{}}}
+function saveMeta(m){localStorage.setItem(K_META,JSON.stringify(m));}
+
+let tasks=loadTasks(),settings=loadSettings(),filter="all",mode="text";
+
+function seed(){
+  const meta=loadMeta();if(meta.seeded)return;
+  const H=3600*1000,b=Date.now();
+  tasks=[
+    {id:uid(),taskId:"",mode:"text",prompt:"女人坐在咖啡馆里抬头看向窗外，镜头推进拍到街道，暖色调",ratio:"16:9",duration:6,resolution:"2K",images:[],videos:[],audios:[],status:"running",videoUrl:"",createdAt:new Date(b-3*H).toISOString(),updatedAt:new Date(b-2*H).toISOString(),note:""},
+    {id:uid(),taskId:"",mode:"image",prompt:"小女孩慢慢长大（首尾帧过渡）",ratio:"",duration:6,resolution:"2K",images:[{role:"first_frame",url:"x"}],videos:[],audios:[],status:"succeeded",videoUrl:"https://www.w3schools.com/html/mov_bbb.mp4",createdAt:new Date(b-5*H).toISOString(),updatedAt:new Date(b-5*H+60000).toISOString(),note:"示例"},
+    {id:uid(),taskId:"",mode:"text",prompt:"男子走在古巷中，镜头从肩后跟拍",ratio:"16:9",duration:8,resolution:"2K",images:[],videos:[],audios:[],status:"failed",videoUrl:"",createdAt:new Date(b-26*H).toISOString(),updatedAt:new Date(b-26*H+300000).toISOString(),note:"示例"}
+  ];
+  saveTasks(tasks);meta.seeded=true;saveMeta(meta);
+}
+seed();
+
+const TIC={ok:'<svg class="ic" viewBox="0 0 24 24" fill="#34d399"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1 14l-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6z"/></svg>',err:'<svg class="ic" viewBox="0 0 24 24" fill="#f87171"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',warn:'<svg class="ic" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>'};
+let toastT;function toast(m,kind){const e=$("#toast");e.innerHTML=(TIC[kind]||"")+`<span>${esc(m)}</span>`;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),3000);}
+
+const MODE_IC={text:'<svg viewBox="0 0 24 24"><path d="M3 5h18v2H3V5zm0 4h12v2H3V9zm0 4h18v2H3v-2zm0 4h12v2H3v-2z"/></svg>',image:'<svg viewBox="0 0 24 24"><path d="M21 5H3v14h18V5zM8 11l2.5 3 3.5-4.5L19 17H5l3-6z"/></svg>',multimodal:'<svg viewBox="0 0 24 24"><path d="M3 4h8v8H3V4zm10-1h8v9h-8V3zM3 14h8v6H3v-6zm10 1h8v5h-8v-5z"/></svg>'};
+const MODE_NAME={text:"文生视频",image:"图生视频",multimodal:"多模态"};
+const BADGE={queued:["b-queued","排队中"],running:["b-running","生成中"],succeeded:["b-succeeded","成功"],failed:["b-failed","失败"],expired:["b-expired","已过期"],cancelled:["b-cancelled","已取消"],local:["b-local","待绑定"]};
+
+function renderBoard(){
+  const cnt=s=>tasks.filter(t=>t.status===s).length;
+  $("#statline").innerHTML=`共 <b>${tasks.length}</b> · 成功 <b>${cnt("succeeded")}</b> · 失败 <b>${cnt("failed")}</b> · 进行中 <b>${cnt("queued")+cnt("running")}</b>`;
+  let list=tasks.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  if(filter!=="all")list=list.filter(t=>t.status===filter);
+  const box=$("#boardList");
+  if(!list.length){box.innerHTML=`<div class="empty">该分类下暂无任务。</div>`;return;}
+  box.innerHTML=list.map(t=>{
+    const[bc,bn]=BADGE[t.status]||["b-queued",t.status];
+    let media="";
+    if(t.status==="succeeded"&&t.videoUrl){
+      const exp=Date.now()-new Date(t.createdAt)>864e5;
+      media=`<video src="${esc(t.videoUrl)}" controls preload="metadata"></video>`+(exp?`<div class="expire">⏱ 链接已超 24h 有效期，建议重新生成</div>`:"")+
+        `<div class="actions"><button class="btn sm" onclick="copyText('${esc(t.videoUrl)}')">复制链接</button><a class="btn sm" href="${esc(t.videoUrl)}" download target="_blank" rel="noopener">下载</a></div>`;
+    }
+    let extra="";
+    if(t.note&&t.status==="failed")extra+=`<div class="servermsg">${esc(t.note)}</div>`;
+    if(t.status==="local"){
+      extra+=`<div class="localnote">浏览器直连未成功（可能网关未开 CORS）。复制下方 curl 提交，再把返回的任务 ID 粘贴回来即可继续监控。</div><div class="curlbox">${esc(buildCurl(t))}</div><div class="inrow"><input type="text" id="tid_${t.id}" placeholder="粘贴返回的任务 ID"><button class="btn sm primary" onclick="bindId('${t.id}')">绑定</button></div>`;
+    }
+    if(t.status==="failed")extra+=`<div class="actions"><button class="btn sm primary" onclick="retry('${t.id}')">重试</button></div>`;
+    return `<div class="task s-${t.status}">
+      <div class="th"><span class="mode-ic">${MODE_IC[t.mode]||""}</span><span class="badge ${bc}">${bn}</span><span style="margin-left:auto;font-size:12px;color:var(--sub2)">${ago(t.createdAt)}</span></div>
+      <div class="prompt">${esc(t.prompt)}</div>
+      <div class="meta"><span>${MODE_NAME[t.mode]||t.mode}</span>${t.ratio?`<span>${esc(t.ratio)}</span>`:""}<span>${t.duration}s</span><span>${esc(t.resolution)}</span></div>
+      ${media}${extra}
+      <div class="actions">${(t.taskId&&t.status!=="local")?`<button class="btn sm ghost" onclick="copyText('${esc(t.taskId)}')">任务 ID</button>`:""}<button class="btn sm ghost" onclick="delTask('${t.id}')">删除</button></div>
+    </div>`;
+  }).join("");
+}
+window.copyText=t=>navigator.clipboard.writeText(t).then(()=>toast("已复制链接","ok")).catch(()=>toast("复制失败","err"));
+window.delTask=id=>{if(!confirm("删除该任务？"))return;tasks=tasks.filter(t=>t.id!==id);saveTasks(tasks);renderAll();};
+window.retry=id=>{const t=tasks.find(x=>x.id===id);if(!t)return;t.status="queued";t.note="";t.updatedAt=new Date().toISOString();saveTasks(tasks);renderAll();if(settings.direct)queryTask(t);toast("已重试","ok");};
+window.bindId=id=>{const v=$("#tid_"+id).value.trim();if(!v){toast("请粘贴任务 ID","warn");return;}const t=tasks.find(x=>x.id===id);if(!t)return;t.taskId=v;t.status="queued";t.updatedAt=new Date().toISOString();saveTasks(tasks);renderAll();if(settings.direct)queryTask(t);toast("已绑定，开始轮询","ok");};
+
+function buildBody(t){
+  const c=[{type:"text",text:t.prompt}];
+  if(t.mode==="image"){const f=(t.images.find(i=>i.role==="first_frame")||{}).url,l=(t.images.find(i=>i.role==="last_frame")||{}).url;if(f)c.push({type:"image_url",image_url:{url:f},role:"first_frame"});if(l)c.push({type:"image_url",image_url:{url:l},role:"last_frame"});}
+  else if(t.mode==="multimodal"){t.images.forEach(i=>c.push({type:"image_url",image_url:{url:i.url},role:"reference_image"}));t.videos.forEach(v=>c.push({type:"video_url",video_url:{url:v.url},role:"reference_video"}));t.audios.forEach(a=>c.push({type:"audio_url",audio_url:{url:a.url},role:"reference_audio"}));}
+  const b={model:settings.model,resolution:t.resolution,duration:t.duration,content:c};
+  if(t.mode==="text")b.ratio=t.ratio;return b;
+}
+function buildCurl(t){return `curl ${settings.baseUrl}/video_generation \\\n  -H "Authorization: Bearer ${settings.apiKey||"YOUR_API_KEY"}" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(buildBody(t))}'`;}
+function serverMsg(j){try{return (j&&j.error&&(j.error.message||j.error.code))||(j&&j.message)||""}catch(e){return""}}
+
+async function apiSubmit(t){
+  if(!settings.direct||!settings.apiKey)return{ok:false,reason:"nodirect"};
+  try{const r=await fetch(settings.baseUrl+"/video_generation",{method:"POST",headers:{"Authorization":"Bearer "+settings.apiKey,"Content-Type":"application/json"},body:JSON.stringify(buildBody(t))});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok)return{ok:false,reason:"http"+r.status,msg:serverMsg(j)};
+    const tid=j.task_id||j.id||(j.task&&(j.task.task_id||j.task.id))||j.taskId||"";const st=j.status||(j.task&&j.task.status)||"";
+    return{ok:true,tid,status:st};
+  }catch(e){return{ok:false,reason:"cors"};}
+}
+async function apiQuery(t){
+  if(!settings.direct||!settings.apiKey||!t.taskId)return{ok:false,reason:"nodirect"};
+  try{const r=await fetch(settings.baseUrl+"/query/video_generation/"+encodeURIComponent(t.taskId),{method:"GET",headers:{"Authorization":"Bearer "+settings.apiKey}});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok)return{ok:false,reason:"http"+r.status,msg:serverMsg(j)};
+    const st=j.task&&j.task.status?j.task.status:(j.status||j.task_status||"");const url=j.task&&j.task.content&&j.task.content.url?j.task.content.url:(j.content&&j.content.url||"");
+    const em=j.task&&j.task.error?(j.task.error.message||String(j.task.error.code||"")):(j.error&&(j.error.message||String(j.error.code||"")));
+    return{ok:true,status:st,url,errmsg:em};
+  }catch(e){return{ok:false,reason:"cors"};}
+}
+function applyStatus(t,status,url,errmsg){const m={queued:"queued",running:"running",succeeded:"succeeded",failed:"failed",cancelled:"cancelled",expired:"expired"};t.status=m[status]||t.status;if(url)t.videoUrl=url;if(errmsg&&t.status==="failed")t.note="失败原因："+errmsg;t.updatedAt=new Date().toISOString();}
+function stopPoll(t){if(pollTimers[t.id]){clearInterval(pollTimers[t.id]);delete pollTimers[t.id];}}
+async function queryTask(t){const r=await apiQuery(t);
+  if(r.ok&&r.status){applyStatus(t,r.status,r.url,r.errmsg);saveTasks(tasks);renderAll();if(["queued","running"].includes(t.status))schedulePoll(t);else stopPoll(t);}
+  else if(r.reason==="cors"){toast("查询直连失败（疑似 CORS），可复制 curl 手动查询","warn");}
+  else if(r.reason==="http401"||r.reason==="http403"){stopPoll(t);toast("API Key 未授权，请检查密钥后重试","err");}
+  else if(r.reason&&r.reason.startsWith("http")){stopPoll(t);toast("查询失败："+(r.msg||r.reason),"err");}
+}
+let pollTimers={};
+function schedulePoll(t){stopPoll(t);const iv=Math.max(5,settings.pollInterval||15)*1000;pollTimers[t.id]=setInterval(async()=>{if(!["queued","running"].includes(t.status)){stopPoll(t);return;}const r=await apiQuery(t);
+  if(r.ok&&r.status){applyStatus(t,r.status,r.url,r.errmsg);saveTasks(tasks);renderAll();if(!["queued","running"].includes(t.status))stopPoll(t);}
+  else if(r.reason==="cors"){stopPoll(t);toast("轮询中断：直连失败（疑似 CORS）","warn");}
+  else if(r.reason==="http401"||r.reason==="http403"){stopPoll(t);toast("API Key 未授权，已停止轮询","err");}
+  else if(r.reason&&r.reason.startsWith("http")){stopPoll(t);toast("轮询中断："+(r.msg||r.reason),"err");}
+},iv);}
+
+$("#btnSubmit").addEventListener("click",async()=>{
+  const prompt=$("#fPrompt").value.trim();if(!prompt){toast("请填写提示词","warn");return;}
+  if(!settings.apiKey&&settings.direct){toast("请先在「接入设置」填 API Key","warn");$("#settingsPanel").classList.add("on");return;}
+  let t={id:uid(),taskId:"",prompt,images:[],videos:[],audios:[],status:"queued",videoUrl:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),note:""};
+  if(mode==="text"){t.mode="text";t.ratio=$("#fRatio").value;t.duration=+$("#fDuration").value||6;t.resolution=$("#fRes").value;}
+  else if(mode==="image"){const f=$("#fFirst").value.trim(),l=$("#fLast").value.trim();if(!f){toast("图生视频需首帧 URL","warn");return;}t.mode="image";t.images=[{role:"first_frame",url:f}];if(l)t.images.push({role:"last_frame",url:l});t.duration=+$("#fDurationI").value||6;t.resolution=$("#fResI").value;}
+  else{const imgs=[...$("#multiImgs").querySelectorAll("input")].map(i=>i.value.trim()).filter(Boolean).map(u=>({role:"reference_image",url:u}));const vid=$("#fRefVideo").value.trim(),aud=$("#fRefAudio").value.trim();if(!imgs.length&&!vid){toast("多模态至少需一个参考图或视频","warn");return;}t.mode="multimodal";t.images=imgs;if(vid)t.videos=[{role:"reference_video",url:vid}];if(aud)t.audios=[{role:"reference_audio",url:aud}];t.duration=+$("#fDurationM").value||8;t.resolution=$("#fResM").value;}
+  tasks.push(t);saveTasks(tasks);renderAll();
+  if(!settings.direct){toast("已存为本地任务（手动模式）","ok");return;}
+  const r=await apiSubmit(t);
+  if(r.ok){if(r.tid)t.taskId=r.tid;if(r.status)applyStatus(t,r.status,r.url);saveTasks(tasks);renderAll();if(t.taskId){schedulePoll(t);toast("已提交，开始轮询","ok");}else toast("已提交，但未解析到任务 ID，请手动绑定","warn");}
+  else if(r.reason==="cors"){t.status="local";saveTasks(tasks);renderAll();toast("直连被拦截（疑似 CORS），已转手动模式","warn");}
+  else if(r.reason==="http401"||r.reason==="http403"){t.status="failed";t.note=(r.msg?("提交被拒绝："+r.msg):"提交被拒绝：API Key 未授权");saveTasks(tasks);renderAll();toast("API Key 未授权，请检查密钥","err");}
+  else if(r.reason&&r.reason.startsWith("http")){t.status="failed";t.note=(r.msg?("提交失败："+r.msg):("提交失败 ("+r.reason+")"));saveTasks(tasks);renderAll();toast("提交失败："+(r.msg||r.reason),"err");}
+  else{t.status="local";saveTasks(tasks);renderAll();toast("提交失败，已转手动模式","warn");}
+});
+function addImgInput(v=""){const d=document.createElement("div");d.className="urlrow";d.innerHTML=`<input type="text" placeholder="https://example.com/ref.jpg" value="${esc(v)}"><button class="xbtn" type="button">✕</button>`;d.querySelector("button").onclick=()=>d.remove();$("#multiImgs").appendChild(d);}
+$("#addImg").addEventListener("click",()=>addImgInput());
+[...$("#modeTabs").querySelectorAll("button")].forEach(b=>b.addEventListener("click",()=>{mode=b.dataset.mode;[...$("#modeTabs").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x===b));$("#grpText").style.display=mode==="text"?"block":"none";$("#grpImage").style.display=mode==="image"?"block":"none";$("#grpMulti").style.display=mode==="multimodal"?"block":"none";}));
+[...$("#filters").querySelectorAll("button")].forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.f;[...$("#filters").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x===b));renderBoard();}));
+
+$("#btnSet").addEventListener("click",()=>$("#settingsPanel").classList.toggle("on"));
+function syncUI(){const s=settings;$("#sBase").value=s.baseUrl;$("#sKey").value=s.apiKey;$("#sModel").value=s.model;$("#sPoll").value=s.pollInterval;$("#sDirect").checked=s.direct;}
+$("#sSave").addEventListener("click",()=>{settings={baseUrl:$("#sBase").value.trim(),apiKey:$("#sKey").value.trim(),model:$("#sModel").value.trim()||"minimax-h3",pollInterval:Math.max(5,+$("#sPoll").value||15),direct:$("#sDirect").checked};saveSettings(settings);$("#settingsPanel").classList.remove("on");toast("已保存","ok");});
+
+function renderAll(){renderBoard();}
+tasks.filter(t=>["queued","running"].includes(t.status)&&t.taskId).forEach(t=>{if(settings.direct)queryTask(t);});
+syncUI();renderAll();
+</script>
+</body>
+</html>
