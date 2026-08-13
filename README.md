@@ -1,6 +1,8 @@
-# 词元跳动 × MINIMAX H3
+# 视频生成监控台
 
-一款为 **MiniMax H3 视频生成（经词元跳动接入）** 打造的轻量个人工作台。把原本只能靠 `curl` 看 `queued / running / succeeded` 的技术化输入输出，变成一张直观的看板：状态徽章、提示词、参数、生成完直接内嵌视频预览、一键复制 / 下载，链接超 24h 自动预警。
+> 一款基于 **词元跳动（TokenDance）× MINIMAX H3** 打造的个人视频生成监控工作台。把原本只能靠 `curl` 看 `queued / running / succeeded` 的技术化输入输出，变成一张直观的看板：状态徽章、提示词、参数、生成完直接内嵌视频预览、一键复制 / 下载，链接超 24h 自动预警。
+
+注：词元跳动（TokenDance）是第三方 AI 接入服务商，MINIMAX H3 是 MiniMax 的视频生成模型；本软件仅为调用其能力的个人工具，与这两家厂商无隶属关系。
 
 > 本项目面向 **个人自用 / 小团队分发**，只做一件事：让你对自己视频内容的生成全流程看得清、管得顺。
 
@@ -34,10 +36,10 @@
 
 安装步骤：
 
-1. 双击 DMG，将「词元跳动」拖入「应用程序」
+1. 双击 DMG，将「视频生成监控台」拖入「应用程序」
 2. 首次打开若被 Gatekeeper 拦截（未签名），请 **右键 → 打开**，或在终端执行一次：
    ```bash
-   sudo xattr -dr com.apple.quarantine /Applications/词元跳动.app
+   sudo xattr -dr com.apple.quarantine /Applications/视频生成监控台.app
    ```
 3. 打开后同样在「接入设置」中填入你自己的 API Key 即可
 
