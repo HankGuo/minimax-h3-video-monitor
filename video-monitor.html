@@ -164,7 +164,7 @@
         <button data-mode="multimodal">多模态</button>
       </div>
       <label class="fld">提示词</label>
-      <textarea id="fPrompt" placeholder="女人坐在咖啡馆里抬头看向窗外，镜头推进拍到街道，暖色调"></textarea>
+      <textarea id="fPrompt" placeholder="输入视频生成提示词，例如：一个女孩在沙滩奔跑，夕阳下的慢镜头"></textarea>
 
       <div id="grpText">
         <div class="row2">
@@ -238,17 +238,12 @@ function saveMeta(m){localStorage.setItem(K_META,JSON.stringify(m));}
 
 let tasks=loadTasks(),settings=loadSettings(),filter="all",mode="text";
 
-function seed(){
-  const meta=loadMeta();if(meta.seeded)return;
-  const H=3600*1000,b=Date.now();
-  tasks=[
-    {id:uid(),taskId:"",mode:"text",prompt:"女人坐在咖啡馆里抬头看向窗外，镜头推进拍到街道，暖色调",ratio:"16:9",duration:6,resolution:"2K",images:[],videos:[],audios:[],status:"running",videoUrl:"",createdAt:new Date(b-3*H).toISOString(),updatedAt:new Date(b-2*H).toISOString(),note:""},
-    {id:uid(),taskId:"",mode:"image",prompt:"小女孩慢慢长大（首尾帧过渡）",ratio:"",duration:6,resolution:"2K",images:[{role:"first_frame",url:"x"}],videos:[],audios:[],status:"succeeded",videoUrl:"https://www.w3schools.com/html/mov_bbb.mp4",createdAt:new Date(b-5*H).toISOString(),updatedAt:new Date(b-5*H+60000).toISOString(),note:"示例"},
-    {id:uid(),taskId:"",mode:"text",prompt:"男子走在古巷中，镜头从肩后跟拍",ratio:"16:9",duration:8,resolution:"2K",images:[],videos:[],audios:[],status:"failed",videoUrl:"",createdAt:new Date(b-26*H).toISOString(),updatedAt:new Date(b-26*H+300000).toISOString(),note:"示例"}
-  ];
-  saveTasks(tasks);meta.seeded=true;saveMeta(meta);
-}
-seed();
+// 一次性迁移：清掉旧版本写入的示例任务（仅清任务，保留用户已填的 API Key）
+(function migrate(){
+  const m=loadMeta();
+  if(m&&m.seeded){try{localStorage.removeItem(K_TASKS);}catch(e){}delete m.seeded;saveMeta(m);tasks=loadTasks();}
+})();
+
 
 const TIC={ok:'<svg class="ic" viewBox="0 0 24 24" fill="#34d399"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1 14l-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6z"/></svg>',err:'<svg class="ic" viewBox="0 0 24 24" fill="#f87171"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',warn:'<svg class="ic" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>'};
 let toastT;function toast(m,kind){const e=$("#toast");e.innerHTML=(TIC[kind]||"")+`<span>${esc(m)}</span>`;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),3000);}
