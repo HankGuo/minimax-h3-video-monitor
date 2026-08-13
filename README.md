@@ -59,6 +59,12 @@
 
 ---
 
+## 相关项目
+
+- **[video-studio](https://github.com/HankGuo/video-studio)**：同一作者的另一款视频工作台，基于 **Kimi K3** 模型打造。注意：**只支持苹果芯片（Apple Silicon）**，Intel Mac 无法运行。喜欢尝鲜的同学可自行前往体验。
+
+---
+
 ## 用法说明
 
 | 模式 | 说明 | 必填参数 |
