@@ -2,6 +2,7 @@
 node_modules/
 electron-app/node_modules/
 electron-app/dist/
+electron-app/app/
 electron-app/build/
 
 # 系统文件
