@@ -1,5 +1,7 @@
 # 视频生成监控台
 
+> ⚠️ **限时免费提示**：据词元跳动（TokenDance）说明，其提供的 **MiniMax H3 视频生成免费额度将于今晚 12 点（2026-08-14 00:00，GMT+8）截止**。在此之前可免费调用本工具接入的能力；之后是否收费及标准请以 [词元跳动官方](https://tokendance.space/) 公告为准。有需要的同学建议尽早体验 / 留存素材。
+
 > 一款基于 **词元跳动（TokenDance）× MINIMAX H3** 打造的个人视频生成监控工作台。把原本只能靠 `curl` 看 `queued / running / succeeded` 的技术化输入输出，变成一张直观的看板：状态徽章、提示词、参数、生成完直接内嵌视频预览、一键复制 / 下载，链接超 24h 自动预警。
 
 注：词元跳动（TokenDance）是第三方 AI 接入服务商，MINIMAX H3 是 MiniMax 的视频生成模型；本软件仅为调用其能力的个人工具，与这两家厂商无隶属关系。
@@ -32,7 +34,7 @@
 
 ### 方式二：macOS 桌面版（DMG）
 
-已提供 Universal 通用安装包（`electron-app/dist/*.dmg`），**Intel 与苹果芯片均可安装**，无需任何前置依赖。
+提供 **Universal 通用安装包**（GitHub Releases 下载，见下方「下载」），**Intel 与苹果芯片均可安装**，无需任何前置依赖。
 
 安装步骤：
 
@@ -44,6 +46,16 @@
 3. 打开后同样在「接入设置」中填入你自己的 API Key 即可
 
 > 注：当前分发包为**未签名**版本（无 Apple 开发者证书）。如需他人「双击即装、零警告」，可自行购买 Apple Developer 证书做公证后重打包。
+
+---
+
+## 下载
+
+| 平台 | 格式 | 链接 |
+|---|---|---|
+| macOS（Intel + 苹果芯片） | Universal DMG（约 168MB） | [GitHub Releases · v1.0.0](https://github.com/HankGuo/minimax-h3-video-monitor/releases/tag/v1.0.0) |
+
+> 安装步骤见上方「方式二」。DMG 为未签名版本，首次打开若被拦截，请右键 → 打开，或在终端执行 `sudo xattr -dr com.apple.quarantine /Applications/视频生成监控台.app`。
 
 ---
 
