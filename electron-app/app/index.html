@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1100">
-<title>视频生成监控台</title>
+<title>词元跳动 × MINIMAX H3</title>
 <style>
   :root{
     --bg:#f5f6f8; --card:#ffffff; --ink:#1f2430; --sub:#6b7280; --sub2:#9aa1ad; --line:#e9ebef; --line2:#f0f1f4;
@@ -132,7 +132,7 @@
   <header>
     <div class="brand">
       <span class="logo"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4V4zm2 2v8h12V6H6zm9 1.5l3 2.5-3 2.5v-5z"/></svg></span>
-      <span>视频生成监控台<small>MINIMAX H3 · 私有网关</small></span>
+      <span>词元跳动<small>× MINIMAX H3</small></span>
     </div>
     <span class="spacer"></span>
     <button class="setbtn" id="btnSet">
@@ -275,7 +275,7 @@ function renderBoard(){
     let extra="";
     if(t.note&&t.status==="failed")extra+=`<div class="servermsg">${esc(t.note)}</div>`;
     if(t.status==="local"){
-      extra+=`<div class="localnote">浏览器直连未成功（可能网关未开 CORS）。复制下方 curl 提交，再把返回的任务 ID 粘贴回来即可继续监控。</div><div class="curlbox">${esc(buildCurl(t))}</div><div class="inrow"><input type="text" id="tid_${t.id}" placeholder="粘贴返回的任务 ID"><button class="btn sm primary" onclick="bindId('${t.id}')">绑定</button></div>`;
+      extra+=`<div class="localnote">浏览器直连未成功（可能被跨域策略拦截）。复制下方 curl 提交，再把返回的任务 ID 粘贴回来即可继续监控。</div><div class="curlbox">${esc(buildCurl(t))}</div><div class="inrow"><input type="text" id="tid_${t.id}" placeholder="粘贴返回的任务 ID"><button class="btn sm primary" onclick="bindId('${t.id}')">绑定</button></div>`;
     }
     if(t.status==="failed")extra+=`<div class="actions"><button class="btn sm primary" onclick="retry('${t.id}')">重试</button></div>`;
     return `<div class="task s-${t.status}">

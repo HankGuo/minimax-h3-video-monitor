@@ -1,7 +1,7 @@
 {
   "name": "video-monitor",
   "version": "1.0.0",
-  "description": "MiniMax H3 视频生成监控台 (私有网关)",
+  "description": "词元跳动 × MINIMAX H3 视频生成客户端",
   "main": "main.js",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "build": {
     "appId": "com.hank.videomonitor",
-    "productName": "视频生成监控台",
+    "productName": "词元跳动",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -34,7 +34,7 @@
       "gatekeeperAssess": false
     },
     "dmg": {
-      "title": "视频生成监控台 ${version}",
+      "title": "词元跳动 ${version}",
       "contents": [
         { "x": 130, "y": 220 },
         { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
